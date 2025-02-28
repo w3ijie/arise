@@ -14,6 +14,8 @@ def save_minion(name, rank, power):
     try:
         with open('save_state.json', 'r+') as file:
             data = json.load(file)
+            if 'minions' not in data:
+                data['minions'] = []
             data['minions'].append(minion_data)
             file.seek(0)
             json.dump(data, file, indent=4)

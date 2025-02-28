@@ -86,6 +86,7 @@ class SungJinwoo:
                         rank = SHADOW_RANKS[min(
                             len(SHADOW_RANKS)-1, monster.power // 2)]
                         save_minion(monster.name, rank, monster.power)
+                        self.minions = load_minions()
 
                         print(
                             f"\n>> {monster.name} has become a shadow minion of rank {rank}!\n")

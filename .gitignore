@@ -1,4 +1,4 @@
-save_state.json
 __pycache__/
+save_state.json
 *.pyc
 venv/

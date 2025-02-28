@@ -29,3 +29,13 @@ def load_minions() -> List[dict]:
             return data.get('minions', [])
     except FileNotFoundError:
         return []
+
+
+def load_player_level() -> int:
+    try:
+        with open('save_state.json', 'r') as file:
+            data = json.load(file)
+            player = data.get('player', {})
+            return player.get('level')
+    except FileNotFoundError:
+        return []

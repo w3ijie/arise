@@ -1,7 +1,7 @@
 import random
 import time
 
-from save import load_minions, save_minion
+from save import load_minions, save_minion, load_player_level
 
 # Shadow ranks based on Solo Leveling
 SHADOW_RANKS = ["Soldier", "Elite", "Knight",
@@ -46,6 +46,7 @@ class Monster:
 class SungJinwoo:
     def __init__(self):
         self.hp = 100
+        self.level = load_player_level()
         self.minions = load_minions()
 
     def attack(self, monster, ability=None):

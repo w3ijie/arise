@@ -39,3 +39,17 @@ def load_player_level() -> int:
             return player.get('level')
     except FileNotFoundError:
         return []
+
+
+def save_player_level(increment: int = 1):
+    try:
+        with open('save_state.json', 'r+') as file:
+            data = json.load(file)
+            if 'player' not in data:
+                data['player'] = {'level': 1}
+            data['player']['level'] += increment
+            file.seek(0)
+            json.dump(data, file, indent=4)
+    except FileNotFoundError:
+        with open('save_state.json', 'w') as file:
+            json.dump({"player": {"level": increment}}, file, indent=4)

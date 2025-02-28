@@ -130,11 +130,17 @@ def generate_gate():
     dungeon_name = dungeon['name']
     valid_monsters = dungeon["monsters"]
 
+    # Ensure valid_monsters is not empty before sampling
+    if not valid_monsters:
+        print("No valid monsters available for this dungeon!")
+        return dungeon_name, []
+
     # Ensure we don't sample more monsters than are available in the dungeon
     num_monsters = random.randint(1, min(3, len(valid_monsters)))
     monsters = random.sample(valid_monsters, num_monsters)
 
     return dungeon_name, [Monster(monster["name"], monster["power"], monster["spawn_rate"]) for monster in monsters]
+
 
 
 def play_game():

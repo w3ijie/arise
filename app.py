@@ -129,8 +129,8 @@ def generate_gate():
     dungeon_name = dungeon['name']
     valid_monsters = dungeon["monsters"]
 
-    # Spawn 1-3 random monsters from the dungeon's subset
-    num_monsters = random.randint(1, 3)
+    # Ensure we don't sample more monsters than are available in the dungeon
+    num_monsters = random.randint(1, min(3, len(valid_monsters)))
     monsters = random.sample(valid_monsters, num_monsters)
 
     return dungeon_name, [Monster(monster["name"], monster["power"], monster["spawn_rate"]) for monster in monsters]

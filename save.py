@@ -2,7 +2,7 @@ import datetime
 import json
 from typing import List
 
-
+# Save the minion data to a file
 def save_minion(name, rank, power):
     minion_data = {
         "name": name,
@@ -23,7 +23,7 @@ def save_minion(name, rank, power):
         with open('save_state.json', 'w') as file:
             json.dump({"minions": [minion_data]}, file, indent=4)
 
-
+# Load the minion data from a file
 def load_minions() -> List[dict]:
     try:
         with open('save_state.json', 'r') as file:
@@ -32,7 +32,7 @@ def load_minions() -> List[dict]:
     except FileNotFoundError:
         return []
 
-
+# Load the player level from a file
 def load_player_level() -> int:
     try:
         with open('save_state.json', 'r') as file:
@@ -42,7 +42,7 @@ def load_player_level() -> int:
     except FileNotFoundError:
         return []
 
-
+# Save the player level to a file
 def save_player_level(increment: int = 1):
     try:
         with open('save_state.json', 'r+') as file:

@@ -4,26 +4,38 @@ import time
 from save import load_minions, save_minion, load_player_level
 
 # Shadow ranks based on Solo Leveling
-SHADOW_RANKS = ["Soldier", "Elite", "Knight",
-                "Elite Knight", "Commander", "Marshal"]
+SHADOW_RANKS = ["Soldier", "Elite", "Knight", "Elite Knight", "Commander", "Marshal"]
 GATE_RANKS = ["E-Rank", "D-Rank", "C-Rank", "B-Rank", "A-Rank", "S-Rank"]
+
+# Abilities dictionary
 ABILITIES = {
-    "Dagger Slash": 15,
-    "Stealth Attack": 25,
-    "Quicksilver": 30,
-    "Shadow Minions Attack": 0,  # Damage calculated based on minions
+    "Dagger Slash": {"damage": 15, "spawn_rate": 30},
+    "Stealth Attack": {"damage": 25, "spawn_rate": 25},
+    "Quicksilver": {"damage": 30, "spawn_rate": 20},
+    "Shadow Minions Attack": {"damage": 0, "spawn_rate": 25}  # Damage calculated based on minions
 }
 
+# Monsters list with spawn rates
 MONSTER_LIST = [
-    {"name": "Goblin", "power": 2},
-    {"name": "Hobgoblin", "power": 3},
-    {"name": "Orc", "power": 4},
-    {"name": "Ogre", "power": 5},
-    {"name": "Lizardman", "power": 6},
-    {"name": "Minotaur", "power": 7},
-    {"name": "Giant", "power": 8},
-    {"name": "Demon", "power": 9},
-    {"name": "Dragon", "power": 10}
+    {"name": "Goblin", "power": 2, "spawn_rate": 30},
+    {"name": "Hobgoblin", "power": 3, "spawn_rate": 25},
+    {"name": "Orc", "power": 4, "spawn_rate": 20},
+    {"name": "Ogre", "power": 5, "spawn_rate": 15},
+    {"name": "Lizardman", "power": 6, "spawn_rate": 10},
+    {"name": "Minotaur", "power": 7, "spawn_rate": 7},
+    {"name": "Giant", "power": 8, "spawn_rate": 5},
+    {"name": "Demon", "power": 9, "spawn_rate": 3},
+    {"name": "Dragon", "power": 10, "spawn_rate": 2}
+]
+
+# Dungeons list with spawn rates and monsters subset
+DUNGEONS = [
+    {"name": "E-Rank Dungeon", "spawn_rate": 30, "monsters": MONSTER_LIST[:3]},
+    {"name": "D-Rank Dungeon", "spawn_rate": 25, "monsters": MONSTER_LIST[3:6]},
+    {"name": "C-Rank Dungeon", "spawn_rate": 20, "monsters": MONSTER_LIST[6:8]},
+    {"name": "B-Rank Dungeon", "spawn_rate": 15, "monsters": MONSTER_LIST[7:9]},
+    {"name": "A-Rank Dungeon", "spawn_rate": 7, "monsters": MONSTER_LIST[8:]},
+    {"name": "S-Rank Dungeon", "spawn_rate": 3, "monsters": MONSTER_LIST[9:]}
 ]
 
 
@@ -34,10 +46,11 @@ def print_header(text):
 
 
 class Monster:
-    def __init__(self, name, power):
+    def __init__(self, name, power, spawn_rate):
         self.name = name
         self.hp = power * 10
         self.power = power
+        self.spawn_rate = spawn_rate
 
     def is_defeated(self):
         return self.hp <= 0
@@ -54,7 +67,7 @@ class SungJinwoo:
             if ability == "Shadow Minions Attack" and self.minions:
                 damage = sum(minion['power'] * 5 for minion in self.minions)
             else:
-                damage = ABILITIES.get(ability, 10)
+                damage = ABILITIES.get(ability, {"damage": 10})['damage']
         else:
             damage = random.randint(10, 20)
 
@@ -100,14 +113,27 @@ class SungJinwoo:
         print("\n")
 
 
+def weighted_choice(options, key):
+    total = sum(option[key] for option in options)
+    pick = random.uniform(0, total)
+    current = 0
+    for option in options:
+        current += option[key]
+        if current > pick:
+            return option
+
+
 def generate_gate():
-    rank_index = random.randint(0, len(GATE_RANKS) - 1)
-    rank = GATE_RANKS[rank_index]
-    monsters = [
-        Monster(monster_data["name"], monster_data["power"])
-        for monster_data in random.sample(MONSTER_LIST, random.randint(1, 3))
-    ]
-    return rank, monsters
+    # Select dungeon based on weighted spawn rate
+    dungeon = weighted_choice(DUNGEONS, "spawn_rate")
+    dungeon_name = dungeon['name']
+    valid_monsters = dungeon["monsters"]
+
+    # Spawn 1-3 random monsters from the dungeon's subset
+    num_monsters = random.randint(1, 3)
+    monsters = random.sample(valid_monsters, num_monsters)
+
+    return dungeon_name, [Monster(monster["name"], monster["power"], monster["spawn_rate"]) for monster in monsters]
 
 
 def play_game():
@@ -116,28 +142,35 @@ def play_game():
 
     while not player.is_defeated():
         command = input(
-            "Enter 'g' to find a gate, 'm' to view minions, or 'q' to quit: ")
+            "Enter 'g' to find a dungeon, 'm' to view minions, or 'q' to quit: ")
         if command == 'q':
             break
         elif command == 'm':
             player.show_minions()
             continue
 
-        gate_rank, monsters = generate_gate()
-        print_header(f"You entered a {gate_rank} Gate!")
-        print(f"{len(monsters)} monsters appear!\n")
+        dungeon_name, monsters = generate_gate()
+        print_header(f"You encounter a {dungeon_name}!")
+        print(f"{len(monsters)} monsters detected!\n")
 
+        # Player decision to enter or walk away
+        choice = input("Do you want to enter the gate? (y/n): ")
+        if choice.lower() != 'y':
+            continue
+
+        # Battle with the spawned monsters
         for monster in monsters:
             print_header(f"A {monster.name} (Power: {monster.power}) appears!")
             while not monster.is_defeated() and not player.is_defeated():
-                action = input("Attack (a) | Ability (b): ")
-                if action == 'a':
+                print(f"Available abilities:")
+                for i, ability in enumerate(ABILITIES.keys(), 1):
+                    print(f"{i}. {ability}")
+                action = input("Choose ability number: ")
+                if action.isdigit() and 1 <= int(action) <= len(ABILITIES):
+                    ability = list(ABILITIES.keys())[int(action) - 1]
+                    player.attack(monster, ability)
+                elif action == 'a':
                     player.attack(monster)
-                elif action == 'b':
-                    ability = input(
-                        f"Choose ability: {list(ABILITIES.keys())}: ")
-                    if ability in ABILITIES:
-                        player.attack(monster, ability)
                 else:
                     print("Invalid action.")
 

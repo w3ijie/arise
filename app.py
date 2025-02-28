@@ -73,7 +73,7 @@ class SungJinwoo:
 
         monster.hp -= damage
         print(
-            f"\n>> You used {ability if ability else 'Basic Attack'}! {monster.name} took {damage} damage. Remaining HP: {monster.hp}\n")
+            f"\n>> You used {ability if ability else 'Basic Attack'}! \n {monster.name} took {damage} damage. \n {monster.name} Remaining HP: {monster.hp}\n")
 
     def attempt_arise(self, monster):
         if monster.is_defeated():

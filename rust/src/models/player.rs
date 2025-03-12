@@ -1,3 +1,4 @@
+use chrono::{DateTime, Local};
 use rand::{Rng, rngs::ThreadRng};
 use serde::{Deserialize, Serialize};
 
@@ -14,6 +15,7 @@ const DEFAULT_HEALTH: i32 = 100;
 pub struct Player {
     pub name: String,
     pub health: i32,
+    //pub journey_started: DateTime<Local>,
     pub shadows: Vec<Shadow>,
 
     #[serde(skip)]
@@ -30,6 +32,7 @@ impl Player {
         Player {
             name: name.to_string(),
             health: DEFAULT_HEALTH,
+            //journey_started: Local::now(),
             shadows: vec![],
             rng: rand::rng(),
         }
